@@ -39,8 +39,12 @@
 
 <style lang="scss">
   @import "~vue-material/dist/theme/engine"; // Import the theme engine
-  @include md-register-theme("default", ( primary: md-get-palette-color(blue, A200), // The primary color of your application
-  accent: md-get-palette-color(red, A200), // The accent or secondary color
+  @include md-register-theme("default", (
+  // primary: md-get-palette-color(yellow, A200), // The primary color of your application
+  // accent: md-get-palette-color(red, A200), // The accent or secondary color
+  primary: #FCDF2B, // The primary color of your brand
+  accent: #1a11e8,// The secondary color of your brand
+
   theme: dark // This can be dark or light
   ));
   @import "~vue-material/dist/theme/all"; // Apply the theme
@@ -56,18 +60,24 @@
         text-align: center;
         color: #2c3e50;
         margin-top: 60px;
-        .star {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          background-color: white;
-        }
         >.logo {
           display: block;
           margin: 0 auto;
           width: 320px;
           margin-bottom: 50px;
         }
+      }
+      > .star {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          background-color: white;
+        }
+    }
+
+    button {
+      &.md-primary{
+        background-color: #FCDF2B!important;
       }
     }
   }

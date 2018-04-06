@@ -1,26 +1,30 @@
 <template>
   <div class="md-layout md-gutter md-alignment-top-center">
-    <div class="md-layout-item" v-for="person of peopleWithImage">
+    <div class="md-layout-item" v-for="person of people">
       <md-card>
-        <md-card-media>
-          <img :src="getPic(person.img)" alt="People">
-        </md-card-media>
+        <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
+          <!-- <img :src="getPic(person.img)" alt="People"> -->
+        <!-- </md-card-media> -->
         <md-card-header>
           <div class="md-title">Nascimento: {{person.birth_year}}</div>
           <div class="md-subhead">Sexo: {{person.gender}}</div>
+          <div class="md-subhead">Sexo: {{person.name}}</div>
+          <md-field>
+            <label>Escreva o nome aqui!</label>
+            <md-input v-model="type"></md-input>
+          </md-field>
         </md-card-header>
         <md-card-expand>
-          <md-card-actions md-alignment="space-between">
-            <div>
-              <md-button>Action</md-button>
-            </div>
+          <md-card-actions>
             <md-card-expand-trigger>
-              <md-button>Learn more</md-button>
+              <md-button class="md-fab md-mini md-primary">
+                <md-icon>add</md-icon>
+              </md-button>
             </md-card-expand-trigger>
           </md-card-actions>
           <md-card-expand-content>
             <md-card-content>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque ea, nostrum odio. Dolores, sed accusantium quasi non, voluptas eius illo quas, saepe voluptate pariatur in deleniti minus sint. Excepturi.
+              O personagem possui altura de {{person.height}}, massa de {{person.mass}}, seu cabelo é {{person.hair_color}}, tem olhos {{person.eye_color}}. Nasceu em {{person.bith_year}} e tem a pele {{person.skin_color}}
             </md-card-content>
           </md-card-expand-content>
         </md-card-expand>
@@ -35,9 +39,12 @@
     name: 'Home',
     data() {
       return {
+        type: null,
+        bottom: false,
         people: [],
         nextPage: [],
         previousPage: [],
+        newPage: [],
         images: [{
             id: 1,
             img: "1.jpg"
@@ -82,28 +89,62 @@
       }
     },
     methods: {
-      // mountImagePath: function(img){
-      //         return require('@/assets/people/'+ img + '.jpg')
-      //       },
-      //   getImgUrl(pic) {
-      //     return require('../assets/'+pic)
-      // }
+      bottomVisible() {
+        const scrollY = window.scrollY
+        const visible = document.documentElement.clientHeight
+        const pageHeight = document.documentElement.scrollHeight
+        const bottomOfPage = visible + scrollY >= pageHeight
+        return bottomOfPage || pageHeight < visible
+      },
+      addPage() {
+        alert("CHAMOU")
+        alert(this.nextPage)
+        let len = this.people.lenght;
+        let addr;
+        if (this.nextPage == '') {
+          alert("FALSO")
+          alert(this.nextPage)
+          addr = "https://cors-anywhere.herokuapp.com/https://swapi.co/api/people";
+        } else {
+          alert("VERDADEIRO")
+          alert(this.nextPage)
+          addr = 'https://cors-anywhere.herokuapp.com/' + this.nextPage;
+        }
+        axios.get(addr)
+          .then(response => {
+            this.newPage = response.data.results;
+            this.nextPage = response.data.next;
+            this.previousPage = response.data.previous;
+            this.people = this.people.concat(this.newPage)
+            console.log(this.people)
+            if (this.bottomVisible()) {
+              this.addPage()
+            }
+          })
+      },
       getPic(person) {
         return require('@/assets/img/people/' + person)
+      },
+      getBackground: function(getPicPerson) {
+        let addrs = getPicPerson;
+        return [{
+            'background': 'url(' + addrs + ') no-repeat top center'
+          },
+          {
+            'background-size': 'cover'
+          }
+        ]
+      }
+    },
+    watch: {
+      bottom(bottom) {
+        if (bottom) {
+          this.addPage();
+        }
       }
     },
     computed: {
       peopleWithImage() {
-        // for (let i= 0; i < this.people.length; i++) {
-        // let idStarWarsApi = this.people[i].url.match(/\/([^\/]+)\/?$/)[1];
-        //  for (let i= 0; i < images.length; i++) {
-        //     let imagesId = images[i].id;
-        //     console.log(`${imagesId} - ${typeof(imagesId)} é igual a ${idStarWarsApi} - ${typeof(idStarWarsApi)}`);
-        //      if(imagesId === parseInt(idStarWarsApi)){
-        //       this.people[i].push(images[i])
-        //     }
-        //   }
-        // }
         let peopleFinal = [];
         for (let i = 0; i < this.images.length; i++) {
           let imagesId = this.images[i].id;
@@ -121,24 +162,23 @@
             }
           }
         }
-        console.log("CONSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSOLE" + peopleFinal);
         return peopleFinal;
-      }
+      },
     },
     created() {
-      axios.get(`https://cors-anywhere.herokuapp.com/https://swapi.co/api/people`, {
-          headers: {
-            baseURL: 'http://localhost:8080',
-            timeout: 10000,
-            withCredentials: false
-          }
-        })
-        .then(response => {
-          this.people = response.data.results;
-        })
-        .catch(e => {
-          this.errors.push(e)
-        })
+      // axios.get(`https://cors-anywhere.herokuapp.com/https://swapi.co/api/people`)
+      //   .then(response => {
+      //     this.people = response.data.results;
+      //     this.nextPage = response.data.next;
+      //     this.previousPage = response.data.previous;
+      //   })
+      //   .catch(e => {
+      //     this.errors.push(e)
+      //   })
+      window.addEventListener('scroll', () => {
+        this.bottom = this.bottomVisible()
+      })
+      this.addPage()
     }
   }
 </script>
@@ -150,12 +190,9 @@
     margin: 4px;
     display: inline-block;
     vertical-align: top;
-    >.md-card-media{
- height: 180px!important;
-    overflow: hidden;
+    >.md-card-media {
+      height: 180px!important;
+      overflow: hidden;
     }
   }
-
-
-
 </style>

@@ -1,14 +1,15 @@
 <template>
   <div class="md-layout md-gutter md-alignment-top-center">
-    <div class="md-layout-item" v-for="person of people">
+    <div class="md-layout-item" v-for="person of peopleWithImage">
       <md-card>
-        <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
+        <md-card-media :style="getBackground(getPic(person.img))">
           <!-- <img :src="getPic(person.img)" alt="People"> -->
-        <!-- </md-card-media> -->
+        </md-card-media>
         <md-card-header>
           <div class="md-title">Nascimento: {{person.birth_year}}</div>
           <div class="md-subhead">Sexo: {{person.gender}}</div>
           <div class="md-subhead">Sexo: {{person.name}}</div>
+          <div class="md-subhead">IMG: {{person.img}}</div>
           <md-field>
             <label>Escreva o nome aqui!</label>
             <md-input v-model="type"></md-input>
@@ -83,6 +84,46 @@
           },
           {
             id: 10,
+            img: "10.jpg"
+          },
+          {
+            id: 11,
+            img: "1.jpg"
+          },
+          {
+            id: 12,
+            img: "2.jpg"
+          },
+          {
+            id: 13,
+            img: "3.jpg"
+          },
+          {
+            id: 14,
+            img: "4.jpg"
+          },
+          {
+            id: 15,
+            img: "5.jpg"
+          },
+          {
+            id: 16,
+            img: "6.jpg"
+          },
+          {
+            id: 17,
+            img: "7.jpg"
+          },
+          {
+            id: 18,
+            img: "8.jpg"
+          },
+          {
+            id: 19,
+            img: "8.jpg"
+          },
+          {
+            id: 20,
             img: "10.jpg"
           }
         ]

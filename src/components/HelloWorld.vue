@@ -1,6 +1,9 @@
 <template>
   <div class="md-layout md-gutter md-alignment-top-center">
-    <div class="md-layout-item" v-for="person of peopleWithImage">
+    <div v-if="loading" v-cloak class="loading">
+      <Loader/>
+    </div>
+    <div v-else class="md-layout-item" v-for="person of peopleWithImage">
       <md-card>
         <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
         <md-card-media :style="getBackground(person.img)">
@@ -9,8 +12,7 @@
         <md-card-header>
           <div class="md-title">Nascimento: {{person.birth_year}}</div>
           <div class="md-subhead">Sexo: {{person.gender}}</div>
-          <div class="md-subhead">Sexo: {{person.name}}</div>
-          <div class="md-subhead">IMG: {{person.img}}</div>
+          <div class="md-subhead">Nome: {{person.name}}</div>
           <md-field>
             <label>Escreva o nome aqui!</label>
             <md-input v-model="type"></md-input>
@@ -26,7 +28,7 @@
           </md-card-actions>
           <md-card-expand-content>
             <md-card-content>
-              O personagem possui altura de {{person.height}}, massa de {{person.mass}}, seu cabelo é {{person.hair_color}}, tem olhos {{person.eye_color}}. Nasceu em {{person.bith_year}} e tem a pele {{person.skin_color}}
+              O personagem possui altura de {{person.height}}, massa de {{person.mass}}, seu cabelo é {{person.hair_color}}, tem olhos {{person.eye_color}}. Nasceu em {{person.homeworld}} e tem a pele {{person.skin_color}}
             </md-card-content>
           </md-card-expand-content>
         </md-card-expand>
@@ -39,12 +41,14 @@
   import 'setimmediate';
   import axios from 'axios';
   import searchImage from '../search-img.js';
+  import Loader from './shared/loader'
   export default {
     name: 'Home',
     data() {
       return {
         type: null,
         bottom: false,
+        loading: false,
         people: [],
         nextPage: [],
         previousPage: [],
@@ -132,6 +136,9 @@
         ]
       }
     },
+    components: {
+      Loader
+    },
     methods: {
       bottomVisible() {
         const scrollY = window.scrollY
@@ -147,9 +154,8 @@
         let addr;
         if (this.nextPage == '') {
           // alert("FALSO")
-          // alert(this.nextPage)
           addr = "https://cors-anywhere.herokuapp.com/https://swapi.co/api/people";
-        } else if (this.nextPage == 2) {
+        } else if (((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] == 2) {
           // alert("VERDADEIRO")
           // alert(this.nextPage)
           addr = 'https://cors-anywhere.herokuapp.com/' + this.nextPage;
@@ -163,9 +169,9 @@
             this.nextPage = response.data.next;
             this.previousPage = response.data.previous;
             this.people = this.people.concat(this.newPage);
-            console.log("PEople" + this.people)
             if (this.bottomVisible()) {
-              this.addPage()
+              this.addPage();
+              console.log(this.people);
             }
           })
       },
@@ -190,53 +196,43 @@
         }
       }
     },
-    computed: {
-      peopleWithImage() {
+    asyncComputed: {
+      async peopleWithImage() {
+        this.loading = true;
+        let people = this.people;
         let peopleFinal = [];
-        console.log('this.people: ', this.people);
-        let imgSelected = {};
-        for (let i = 0; i < this.people.length; i++) {
-          let index = this.people[i];
+        for (let i = 0; i < people.length; i++) {
+          let imgSelected = {};
+          let index = people[i];
           let name = index.name;
-          console.log("NOME: " + this.people[i].name);
-          console.log('index.img: ', index.img);
+          // console.log("NOME: " + name);
+          // console.log('index.img: ', index.img);
           if (index.img === '' || index.img === null || index.img === undefined) {
-            console.log('imgSelected: ', imgSelected);
-            console.log('imgSelectedNAME: ', name);
-            alert(searchImage(name));
-            let imgMatch = searchImage(name);
-            console.log('imgMatch: ', toString(imgMatch));
-
-            console.log('imgMatch: ', JSON.stringify(imgMatch[0]));
-            imgSelected = imgMatch[0];
-            console.log('imgSelected: ', imgSelected);
+            // console.log('imgSelected: ', imgSelected);
+            // console.log('imgSelectedNAME: ', name);
+            let imgMatch = await searchImage(name);
+            // console.log('imgMatch: ', imgMatch);
+            imgSelected = imgMatch;
+            // console.log('imgSelected: ', imgSelected);
           } else {
-            console.log("JA TEM")
             imgSelected = index.img;
           }
           let combined = { ...index,
             img: imgSelected
           };
-          console.log('combined: ', combined);
+          // console.log('combined: ', combined);
           peopleFinal.push(combined);
         }
-        // for (let i = 0; i < this.images.length; i++) {
-        //   let imagesId = this.images[i].id;
-        //   console.log(imagesId)
-        //   for (let i = 0; i < this.people.length; i++) {
-        //     let idStarWarsApi = this.people[i].url.match(/\/([^\/]+)\/?$/)[1];
-        //     if (imagesId === parseInt(idStarWarsApi)) {
-        //       let combined = { ...this.people[i],
-        //         ...this.images[i]
-        //       }
-        //       peopleFinal.push(combined)
-        //     }
-        //   }
-        // }
+        console.log('peopleFinal: ', peopleFinal);
+
+        this.loading = false;
+
         return peopleFinal;
-      },
+      }
+
     },
     created() {
+      this.loading = true;
       // axios.get(`https://cors-anywhere.herokuapp.com/https://swapi.co/api/people`)
       //   .then(response => {
       //     this.people = response.data.results;
@@ -256,6 +252,11 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
+  .loading {
+    position: absolute;
+    top: 0px;
+    width: 100vw;
+  }
   .md-card {
     width: 320px;
     margin: 4px;

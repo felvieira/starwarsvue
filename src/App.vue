@@ -59,11 +59,13 @@
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
         color: #2c3e50;
-        margin-top: 60px;
+        margin-bottom:60px;
+        // margin-top: 60px;
         >.logo {
           display: block;
           margin: 0 auto;
           width: 320px;
+          padding-top: 40px;
           margin-bottom: 50px;
         }
       }

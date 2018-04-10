@@ -4,20 +4,15 @@ const GoogleImages = require('google-images');
 const client = new GoogleImages('015019655846772113991:ilcjc1u67ka', 'AIzaSyAul6EAakSG0CnwLTmroXnZsQFkbvyx7UI');
 
 
-function searchImage(name) {
-  let res = [];
-  console.log('name: ', name);
+export default async function searchImage(name) {
+  let res;
+  let result;
 
   if (!(name === '' || name === undefined || name === null)) {
-    client.search(name, {
-      size: 'large',
-    })
+    result = await client.search(name, { size: 'large' })
       .then((images) => {
         // console.log(images);
-        res.push(images[0].url);
-
-        console.log('res: ', res);
-
+        res = images[0].url;
 
         // download.image({
         //   url: res.url,
@@ -47,11 +42,9 @@ function searchImage(name) {
 		}]
 		 */
       });
-
-  } else {
-    console.log(`NOME nao definido${name}`);
   }
+
   return res;
 }
 
-module.exports = searchImage;
+// module.exports = searchImage;

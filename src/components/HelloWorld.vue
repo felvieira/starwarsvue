@@ -3,28 +3,39 @@
     <div v-if="loading" v-cloak class="loading">
       <Loader/>
     </div>
-    <div v-else class="md-layout-item" v-for="person of peopleWithImage">
+
+    <div :id="`person-${person.id}`" v-else ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of peopleWithImage">
       <md-card>
         <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
-        <md-card-media :style="getBackground(person.img)">
+        <md-card-media :style="getBackground(person.img)" ref="image">
           <!-- <img :src="getPic(person.img)" alt="People"> -->
         </md-card-media>
         <md-card-header>
           <div class="md-title">Nascimento: {{person.birth_year}}</div>
           <div class="md-subhead">Sexo: {{person.gender}}</div>
           <div class="md-subhead">Nome: {{person.name}}</div>
+          <div class="md-subhead">NomeDigitado: {{person.nameTyped}}</div>
+          <div class="md-subhead">Key: {{person.viewMore}} {{key}}</div>
+          <div class="md-subhead">EntrouDetalhes: {{person.viewMore}} {{key}}</div>
+          <div class="md-subhead">Pontos: {{person.points}}</div>
           <md-field>
             <label>Escreva o nome aqui!</label>
-            <md-input v-model="type"></md-input>
+            <md-input v-model="person.nameTyped" ref="input"></md-input>
           </md-field>
         </md-card-header>
         <md-card-expand>
           <md-card-actions>
-            <md-card-expand-trigger>
-              <md-button class="md-fab md-mini md-primary">
+            <md-button class="md-fab md-mini md-primary"  ref="button_add" v-on:click="handleViewMore(key)">
+              <md-icon>add</md-icon>
+            </md-button>
+            <md-card-expand-trigger style="display:none;">
+              <md-button class="md-fab md-mini md-primary" ref="button_details">
                 <md-icon>add</md-icon>
               </md-button>
             </md-card-expand-trigger>
+            <md-button class="md-icon-button md-raised md-accent" ref="button_ok" v-on:click="anwserName(key)">
+              <md-icon>thumb_up</md-icon>
+            </md-button>
           </md-card-actions>
           <md-card-expand-content>
             <md-card-content>
@@ -34,6 +45,7 @@
         </md-card-expand>
       </md-card>
     </div>
+     <md-button class="md-raised md-accent" v-on:click="handlePoints()">Testar</md-button>
   </div>
 </template>
 
@@ -46,9 +58,11 @@
     name: 'Home',
     data() {
       return {
-        type: null,
+        personComputed: [],
+        nameType: null,
         bottom: false,
         loading: false,
+        points: null,
         people: [],
         nextPage: [],
         previousPage: [],
@@ -140,6 +154,39 @@
       Loader
     },
     methods: {
+      handlePoints(){
+        let point = 0;
+        for (let i = 0; i < this.peopleWithImage.length; i++) {
+          let person = this.peopleWithImage[i];
+          this.pointsFinal(person);
+          point += person.points;
+
+          console.log(point)
+        }
+        alert(point);
+      },
+      handleViewMore(key) {
+        this.$refs.button_details[key].$el.click();
+        this.peopleWithImage[key].viewMore = true;
+      },
+      anwserName(key) {
+        this.$refs.input[key].disabled = true;
+        this.$refs.button_add[key].disabled = true;
+        this.$refs.button_ok[key].disabled = true;
+        this.$refs.card[key].classList.add("answered");
+      },
+      pointsFinal(person) {
+        console.log('person: ', person);
+        if (person.name == person.nameTyped) {
+          if (person.viewMore == true) {
+            person.points = 5
+          } else {
+            person.points = 10
+          }
+        } else {
+          person.points = 0
+        }
+      },
       bottomVisible() {
         const scrollY = window.scrollY
         const visible = document.documentElement.clientHeight
@@ -204,6 +251,7 @@
         for (let i = 0; i < people.length; i++) {
           let imgSelected = {};
           let index = people[i];
+          let ids = index.url.match(/\/([^\/]+)\/?$/)[1];
           let name = index.name;
           // console.log("NOME: " + name);
           // console.log('index.img: ', index.img);
@@ -217,19 +265,21 @@
           } else {
             imgSelected = index.img;
           }
-          let combined = { ...index,
+          let combined = {
+            id: ids,
+            nameTyped: '',
+            points: 0,
+            viewMore: false,
+            ...index,
             img: imgSelected
           };
           // console.log('combined: ', combined);
           peopleFinal.push(combined);
         }
         console.log('peopleFinal: ', peopleFinal);
-
         this.loading = false;
-
         return peopleFinal;
       }
-
     },
     created() {
       this.loading = true;
@@ -267,4 +317,34 @@
       overflow: hidden;
     }
   }
+  .answered {
+    .md-field:after {
+      height: 0px;
+    }
+    >.md-card {
+      .md-card-media {
+        opacity: 0.3;
+      }
+      .md-card-header {
+        .md-field {
+          input.md-input {
+            color: #1d1d1d!important;
+            -webkit-text-fill-color: #1d1d1d!important;
+          }
+        }
+        >div {
+          color: #1d1d1d;
+        }
+      }
+      .md-card-expand{
+        button{
+              background-color: #424242!important;
+        }
+      }
+    }
+    label {
+      color: #1d1d1d!important;
+    }
+  }
+
 </style>

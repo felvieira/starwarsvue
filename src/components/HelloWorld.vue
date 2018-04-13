@@ -3,7 +3,6 @@
     <div v-if="loading" v-cloak class="loading">
       <Loader/>
     </div>
-
     <div :id="`person-${person.id}`" v-else ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of peopleWithImage">
       <md-card>
         <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
@@ -25,7 +24,7 @@
         </md-card-header>
         <md-card-expand>
           <md-card-actions>
-            <md-button class="md-fab md-mini md-primary"  ref="button_add" v-on:click="handleViewMore(key)">
+            <md-button class="md-fab md-mini md-primary" ref="button_add" v-on:click="handleViewMore(key)">
               <md-icon>add</md-icon>
             </md-button>
             <md-card-expand-trigger style="display:none;">
@@ -45,8 +44,29 @@
         </md-card-expand>
       </md-card>
     </div>
-     <md-button class="md-raised md-accent" v-on:click="handlePoints()">Testar</md-button>
-  </div>
+    <md-button class="md-primary md-raised" v-on:click="handlePoints()">Testar</md-button>
+        <md-dialog :md-active.sync="showDialog" v-model=pointsTotal>
+          <md-dialog-title>Confira abaixo sua pontuação!</md-dialog-title>
+          <md-tabs md-dynamic-height>
+            <md-tab md-label="Pontuação">
+              <h1>Sua pontuação total foi de: {{pointsTotal}}</h1>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+            </md-tab>
+            <md-tab md-label="Se inscreva no Ranking">
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+            </md-tab>
+          </md-tabs>
+          <md-dialog-actions>
+            <md-button class="md-primary md-raised" @click="showDialog = false">Close</md-button>
+            <md-button class="md-primary md-raised" @click="showDialog = false">Save</md-button>
+          </md-dialog-actions>
+        </md-dialog>
+      </div>
 </template>
 
 <script>
@@ -58,11 +78,13 @@
     name: 'Home',
     data() {
       return {
+        showDialog: false,
         personComputed: [],
         nameType: null,
         bottom: false,
         loading: false,
         points: null,
+        pointsTotal: null,
         people: [],
         nextPage: [],
         previousPage: [],
@@ -154,16 +176,15 @@
       Loader
     },
     methods: {
-      handlePoints(){
+      handlePoints() {
         let point = 0;
         for (let i = 0; i < this.peopleWithImage.length; i++) {
           let person = this.peopleWithImage[i];
           this.pointsFinal(person);
           point += person.points;
-
-          console.log(point)
         }
-        alert(point);
+        this.pointsTotal = point;
+        this.showDialog = true;
       },
       handleViewMore(key) {
         this.$refs.button_details[key].$el.click();
@@ -302,6 +323,9 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
+  .md-dialog {
+    max-width: 768px;
+  }
   .loading {
     position: absolute;
     top: 0px;
@@ -336,9 +360,9 @@
           color: #1d1d1d;
         }
       }
-      .md-card-expand{
-        button{
-              background-color: #424242!important;
+      .md-card-expand {
+        button {
+          background-color: #424242!important;
         }
       }
     }
@@ -346,5 +370,4 @@
       color: #1d1d1d!important;
     }
   }
-
 </style>

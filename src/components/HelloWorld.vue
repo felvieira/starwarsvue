@@ -10,12 +10,8 @@
           <!-- <img :src="getPic(person.img)" alt="People"> -->
         </md-card-media>
         <md-card-header>
-          <div class="md-title">Nascimento: {{person.birth_year}}</div>
-          <div class="md-subhead">Sexo: {{person.gender}}</div>
-          <div class="md-subhead">Nome: {{person.name}}</div>
+          <div class="md-title">Quem sou eu?</div>
           <div class="md-subhead">NomeDigitado: {{person.nameTyped}}</div>
-          <div class="md-subhead">Key: {{person.viewMore}} {{key}}</div>
-          <div class="md-subhead">EntrouDetalhes: {{person.viewMore}} {{key}}</div>
           <div class="md-subhead">Pontos: {{person.points}}</div>
           <md-field>
             <label>Escreva o nome aqui!</label>
@@ -54,11 +50,18 @@
               <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
             </md-tab>
             <md-tab md-label="Se inscreva no Ranking">
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+              <md-field>
+                <label>Escreva seu nome</label>
+                <md-input v-model="ranking.name"></md-input>
+                <p>{{ranking.name}}</p>
+                <div>{{pointsTotal}}</div>
+              </md-field>
+              <md-field>
+                <label>Escreva seu email</label>
+                <md-input v-model="ranking.email"></md-input>
+              </md-field>
+               <md-button class="md-primary md-raised" @click="saveRanking()">Salvar</md-button>
+               <md-button class="md-primary md-raised" @click="getRanking()">Carregar</md-button>
             </md-tab>
           </md-tabs>
           <md-dialog-actions>
@@ -78,13 +81,18 @@
     name: 'Home',
     data() {
       return {
+        ranking: {
+          name: '',
+          email: '',
+          points: this.pointsTotal
+        },
         showDialog: false,
         personComputed: [],
-        nameType: null,
+        nameType: '',
         bottom: false,
         loading: false,
-        points: null,
-        pointsTotal: null,
+        points: '',
+        pointsTotal: '',
         people: [],
         nextPage: [],
         previousPage: [],
@@ -176,6 +184,12 @@
       Loader
     },
     methods: {
+      saveRanking(){
+        localStorage.setItem('ranking', JSON.stringify(this.ranking));
+      },
+      getRanking(){
+        if (localStorage.getItem('ranking')) this.ranking = JSON.parse(localStorage.getItem('ranking'));
+      },
       handlePoints() {
         let point = 0;
         for (let i = 0; i < this.peopleWithImage.length; i++) {

@@ -41,35 +41,51 @@
       </md-card>
     </div>
     <md-button class="md-primary md-raised" v-on:click="handlePoints()">Testar</md-button>
-        <md-dialog :md-active.sync="showDialog" v-model=pointsTotal>
-          <md-dialog-title>Confira abaixo sua pontuação!</md-dialog-title>
-          <md-tabs md-dynamic-height>
-            <md-tab md-label="Pontuação">
-              <h1>Sua pontuação total foi de: {{pointsTotal}}</h1>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-              <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-            </md-tab>
-            <md-tab md-label="Se inscreva no Ranking">
-              <md-field>
-                <label>Escreva seu nome</label>
-                <md-input v-model="ranking.name"></md-input>
-                <p>{{ranking.name}}</p>
-                <div>{{pointsTotal}}</div>
-              </md-field>
-              <md-field>
-                <label>Escreva seu email</label>
-                <md-input v-model="ranking.email"></md-input>
-              </md-field>
-               <md-button class="md-primary md-raised" @click="saveRanking()">Salvar</md-button>
-               <md-button class="md-primary md-raised" @click="getRanking()">Carregar</md-button>
-            </md-tab>
-          </md-tabs>
-          <md-dialog-actions>
-            <md-button class="md-primary md-raised" @click="showDialog = false">Close</md-button>
-            <md-button class="md-primary md-raised" @click="showDialog = false">Save</md-button>
-          </md-dialog-actions>
-        </md-dialog>
-      </div>
+    <md-dialog :md-active.sync="showDialog" v-model=pointsTotal>
+      <md-dialog-title>Confira abaixo sua pontuação!</md-dialog-title>
+      <md-tabs md-dynamic-height>
+        <md-tab md-label="Pontuação">
+          <h1>Sua pontuação total foi de: {{pointsTotal}}</h1>
+          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
+        </md-tab>
+        <md-tab md-label="Se inscreva no Ranking">
+          <md-field>
+            <label>Escreva seu nome</label>
+            <md-input v-model="newRanking.name"></md-input>
+          </md-field>
+          <md-field>
+            <label>Escreva seu email</label>
+            <md-input v-model="newRanking.email"></md-input>
+          </md-field>
+          <md-button class="md-primary md-raised" @click="saveRanking()">Salvar</md-button>
+          <md-button class="md-primary md-raised" @click="getRanking()">Carregar</md-button>
+        </md-tab>
+        <md-tab md-label="Ranking">
+          <md-list class="md-triple-line">
+            <md-list-item v-for="(rank, key) of ranking">
+              <md-avatar>
+                <h1>{{rank.points}}</h1>
+              </md-avatar>
+              <div class="md-list-item-text">
+                <span>{{rank.name}}</span>
+                <span>{{rank.email}}</span>
+                <p>I'll be in your neighborhood doing errands this week. Do you want to meet?</p>
+              </div>
+              <md-button class="md-icon-button md-list-action">
+                <md-icon class="md-primary">star</md-icon>
+              </md-button>
+            </md-list-item>
+            <md-divider class="md-inset"></md-divider>
+          </md-list>
+        </md-tab>
+      </md-tabs>
+      <md-dialog-actions>
+        <md-button class="md-primary md-raised" @click="showDialog = false">Close</md-button>
+        <md-button class="md-primary md-raised" @click="showDialog = false">Save</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+  </div>
 </template>
 
 <script>
@@ -81,10 +97,37 @@
     name: 'Home',
     data() {
       return {
-        ranking: {
+        ranking: [],
+        newRanking: {
           name: '',
           email: '',
-          points: this.pointsTotal
+          points: this.pointsTotal || 0
+        },
+        storage: {
+          set: function(key, obj) {
+            if (!key || !obj) {
+              return;
+            }
+            if (localStorage.getItem(key)) {
+              let oldStorage = localStorage.getItem(key);
+              let newStorage = JSON.parse(oldStorage);
+              let stored = obj;
+              newStorage.push(stored);
+              localStorage.setItem(key, JSON.stringify(newStorage));
+            } else {
+              let stored = [];
+              stored.push(obj);
+              localStorage.setItem(key, JSON.stringify(stored));
+            }
+          },
+          get: function(key) {
+            var value = localStorage.getItem(key);
+            if (!value) {
+              return;
+            }
+            value = JSON.parse(value);
+            return value;
+          }
         },
         showDialog: false,
         personComputed: [],
@@ -97,98 +140,23 @@
         nextPage: [],
         previousPage: [],
         newPage: [],
-        images: [{
-            id: 1,
-            img: "1.jpg"
-          },
-          {
-            id: 2,
-            img: "2.jpg"
-          },
-          {
-            id: 3,
-            img: "3.jpg"
-          },
-          {
-            id: 4,
-            img: "4.jpg"
-          },
-          {
-            id: 5,
-            img: "5.jpg"
-          },
-          {
-            id: 6,
-            img: "6.jpg"
-          },
-          {
-            id: 7,
-            img: "7.jpg"
-          },
-          {
-            id: 8,
-            img: "8.jpg"
-          },
-          {
-            id: 9,
-            img: "9.jpg"
-          },
-          {
-            id: 10,
-            img: "10.jpg"
-          },
-          {
-            id: 11,
-            img: "1.jpg"
-          },
-          {
-            id: 12,
-            img: "2.jpg"
-          },
-          {
-            id: 13,
-            img: "3.jpg"
-          },
-          {
-            id: 14,
-            img: "4.jpg"
-          },
-          {
-            id: 15,
-            img: "5.jpg"
-          },
-          {
-            id: 16,
-            img: "6.jpg"
-          },
-          {
-            id: 17,
-            img: "7.jpg"
-          },
-          {
-            id: 18,
-            img: "8.jpg"
-          },
-          {
-            id: 19,
-            img: "8.jpg"
-          },
-          {
-            id: 20,
-            img: "10.jpg"
-          }
-        ]
+        images: []
       }
     },
     components: {
       Loader
     },
     methods: {
-      saveRanking(){
-        localStorage.setItem('ranking', JSON.stringify(this.ranking));
+      saveRanking() {
+        // localStorage.setItem('ranking', JSON.stringify(this.ranking));
+        this.storage.set('ranking', this.newRanking);
+        this.getRanking();
       },
-      getRanking(){
-        if (localStorage.getItem('ranking')) this.ranking = JSON.parse(localStorage.getItem('ranking'));
+      getRanking() {
+        this.storage.get('ranking');
+        this.ranking = this.storage.get('ranking');
+        console.log(this.ranking)
+        // if (localStorage.getItem('ranking')) this.ranking = JSON.parse(localStorage.getItem('ranking'));
       },
       handlePoints() {
         let point = 0;
@@ -229,23 +197,34 @@
         const bottomOfPage = visible + scrollY >= pageHeight
         return bottomOfPage || pageHeight < visible
       },
-      addPage() {
+      async addPage() {
+        console.log('Rodou AddPage');
+        console.log('this.nextPage: ', this.nextPage);
         // alert("CHAMOU")
         // alert(this.nextPage)
-        let len = this.people.lenght;
         let addr;
-        if (this.nextPage == '') {
-          // alert("FALSO")
-          addr = "https://cors-anywhere.herokuapp.com/https://swapi.co/api/people";
-        } else if (((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] == 2) {
-          // alert("VERDADEIRO")
-          // alert(this.nextPage)
-          addr = 'https://cors-anywhere.herokuapp.com/' + this.nextPage;
+        if (this.nextPage === undefined || this.nextPage === null) {
+          console.log('this.nextPage é null: ', this.nextPage);
+          return;
         } else {
-          return
-          addr = 'https://cors-anywhere.herokuapp.com/';
+          if ((this.nextPage).length > 0) {
+            console.log("if 1")
+            if (((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] > 1) {
+              console.log("if 2")
+              // alert("VERDADEIRO")
+              // alert(this.nextPage)
+              addr = 'https://cors-anywhere.herokuapp.com/' + this.nextPage;
+            }
+          } else {
+            // alert("FALSO")
+            addr = "https://cors-anywhere.herokuapp.com/https://swapi.co/api/people";
+          }
         }
-        axios.get(addr)
+        // } else {
+        //   return
+        //   addr = 'https://cors-anywhere.herokuapp.com/';
+        // }
+        await axios.get(addr)
           .then(response => {
             this.newPage = response.data.results;
             this.nextPage = response.data.next;
@@ -253,7 +232,6 @@
             this.people = this.people.concat(this.newPage);
             if (this.bottomVisible()) {
               this.addPage();
-              console.log(this.people);
             }
           })
       },
@@ -281,39 +259,65 @@
     asyncComputed: {
       async peopleWithImage() {
         this.loading = true;
+        let next = this.nextPage;
         let people = this.people;
         let peopleFinal = [];
-        for (let i = 0; i < people.length; i++) {
-          let imgSelected = {};
-          let index = people[i];
-          let ids = index.url.match(/\/([^\/]+)\/?$/)[1];
-          let name = index.name;
-          // console.log("NOME: " + name);
-          // console.log('index.img: ', index.img);
-          if (index.img === '' || index.img === null || index.img === undefined) {
-            // console.log('imgSelected: ', imgSelected);
-            // console.log('imgSelectedNAME: ', name);
-            let imgMatch = await searchImage(name);
-            // console.log('imgMatch: ', imgMatch);
-            imgSelected = imgMatch;
-            // console.log('imgSelected: ', imgSelected);
-          } else {
-            imgSelected = index.img;
+        let cachedPeopleWithImage = JSON.parse(sessionStorage.getItem("peopleWithImage"));
+
+        async function newReq() {
+          for (let i = 0; i < people.length; i++) {
+            let imgSelected = {};
+            let index = people[i];
+            let ids = index.url.match(/\/([^\/]+)\/?$/)[1];
+            let name = index.name;
+            // console.log("NOME: " + name);
+            // console.log('index.img: ', index.img);
+            if (index.img === '' || index.img === null || index.img === undefined) {
+              // console.log('imgSelected: ', imgSelected);
+              // console.log('imgSelectedNAME: ', name);
+              let imgMatch = await searchImage(name);
+              // console.log('imgMatch: ', imgMatch);
+              imgSelected = imgMatch;
+              // console.log('imgSelected: ', imgSelected);
+            } else {
+              imgSelected = index.img;
+            }
+            let combined = {
+              nextPage: next,
+              id: ids,
+              nameTyped: '',
+              points: 0,
+              viewMore: false,
+              ...index,
+              img: imgSelected
+            };
+            // console.log('combined: ', combined);
+            peopleFinal.push(combined);
           }
-          let combined = {
-            id: ids,
-            nameTyped: '',
-            points: 0,
-            viewMore: false,
-            ...index,
-            img: imgSelected
-          };
-          // console.log('combined: ', combined);
-          peopleFinal.push(combined);
+          console.log('peopleFinal: ', peopleFinal);
+          this.loading = false;
+          sessionStorage.setItem("peopleWithImage", JSON.stringify(peopleFinal));
+          return peopleFinal;
         }
-        console.log('peopleFinal: ', peopleFinal);
-        this.loading = false;
-        return peopleFinal;
+        if (cachedPeopleWithImage != null && cachedPeopleWithImage != 'undefined' && cachedPeopleWithImage != '') {
+          console.log("EXISTE CACHE");
+          let cachedNext = cachedPeopleWithImage[(cachedPeopleWithImage.length) - 1].nextPage;
+          let cachedRegex = ((cachedNext).match(/\/([^\/]+)\/?$/)[0]).split('=')[1];
+          let nextRegex = ((next).match(/\/([^\/]+)\/?$/)[0]).split('=')[1];
+          console.log('Valor cacheado é da pagina: ', cachedRegex);
+          console.log('Valor da requisição é: ', nextRegex);
+          if (parseInt(cachedRegex) < parseInt(nextRegex)) {
+            console.log("EXISTE CACHE >> mas a requisição é nova");
+            newReq();
+          } else {
+            console.log("EXISTE CACHE >> E BATE COM CACHE" + cachedPeopleWithImage);
+            this.loading = false;
+            return cachedPeopleWithImage
+          }
+        } else {
+          console.log("NÃO EXISTE CACHE")
+          newReq();
+        }
       }
     },
     created() {
@@ -330,7 +334,8 @@
       window.addEventListener('scroll', () => {
         this.bottom = this.bottomVisible()
       })
-      this.addPage()
+      this.addPage();
+      this.getRanking();
     }
   }
 </script>

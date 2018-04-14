@@ -3,7 +3,7 @@
     <div v-if="loading" v-cloak class="loading">
       <Loader/>
     </div>
-    <div :id="`person-${person.id}`" v-else ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of peopleWithImage">
+    <div :id="`person-${person.id}`" v-else ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of fe">
       <md-card>
         <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
         <md-card-media :style="getBackground(person.img)" ref="image">
@@ -205,11 +205,11 @@
         let addr;
         if (this.nextPage === undefined || this.nextPage === null) {
           console.log('this.nextPage é null: ', this.nextPage);
-          return;
+          addr = 'https://cors-anywhere.herokuapp.com/';
         } else {
           if ((this.nextPage).length > 0) {
             console.log("if 1")
-            if (((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] > 1) {
+            if (((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] > 1 && ((this.nextPage).match(/\/([^\/]+)\/?$/)[0]).split('=')[1] < 5) {
               console.log("if 2")
               // alert("VERDADEIRO")
               // alert(this.nextPage)
@@ -224,47 +224,25 @@
         //   return
         //   addr = 'https://cors-anywhere.herokuapp.com/';
         // }
-        await axios.get(addr)
+        axios.get(addr)
           .then(response => {
             this.newPage = response.data.results;
             this.nextPage = response.data.next;
             this.previousPage = response.data.previous;
             this.people = this.people.concat(this.newPage);
-            if (this.bottomVisible()) {
-              this.addPage();
-            }
+            // if (this.bottomVisible()) {
+            //   this.addPage();
+            // }
           })
       },
-      getPic(person) {
-        return require('@/assets/img/people/' + person)
-      },
-      getBackground: function(getPicPerson) {
-        let addrs = getPicPerson;
-        return [{
-            'background': 'url(' + addrs + ') no-repeat top center'
-          },
-          {
-            'background-size': 'cover'
-          }
-        ]
-      }
-    },
-    watch: {
-      bottom(bottom) {
-        if (bottom) {
-          this.addPage();
-        }
-      }
-    },
-    asyncComputed: {
       async peopleWithImage() {
-        this.loading = true;
         let next = this.nextPage;
         let people = this.people;
         let peopleFinal = [];
         let cachedPeopleWithImage = JSON.parse(sessionStorage.getItem("peopleWithImage"));
 
         async function newReq() {
+          // this.loading = true;
           for (let i = 0; i < people.length; i++) {
             let imgSelected = {};
             let index = people[i];
@@ -295,11 +273,12 @@
             peopleFinal.push(combined);
           }
           console.log('peopleFinal: ', peopleFinal);
-          this.loading = false;
+          // this.loading = false;
           sessionStorage.setItem("peopleWithImage", JSON.stringify(peopleFinal));
           return peopleFinal;
         }
         if (cachedPeopleWithImage != null && cachedPeopleWithImage != 'undefined' && cachedPeopleWithImage != '') {
+          // this.loading = true;
           console.log("EXISTE CACHE");
           let cachedNext = cachedPeopleWithImage[(cachedPeopleWithImage.length) - 1].nextPage;
           let cachedRegex = ((cachedNext).match(/\/([^\/]+)\/?$/)[0]).split('=')[1];
@@ -311,17 +290,46 @@
             newReq();
           } else {
             console.log("EXISTE CACHE >> E BATE COM CACHE" + cachedPeopleWithImage);
-            this.loading = false;
+            // this.loading = false;
             return cachedPeopleWithImage
           }
         } else {
           console.log("NÃO EXISTE CACHE")
           newReq();
         }
+      },
+      getPic(person) {
+        return require('@/assets/img/people/' + person)
+      },
+      getBackground: function(getPicPerson) {
+        let addrs = getPicPerson;
+        return [{
+            'background': 'url(' + addrs + ') no-repeat top center'
+          },
+          {
+            'background-size': 'cover'
+          }
+        ]
+      },
+    },
+    watch: {
+      bottom(bottom) {
+        if (bottom) {
+          this.addPage();
+        }
       }
     },
+    asyncComputed: {
+      async fe(){
+        this.loading = true;
+        let final = await this.peopleWithImage();
+        this.loading = false;
+        return final
+      },
+
+    },
     created() {
-      this.loading = true;
+      // this.loading = true;
       // axios.get(`https://cors-anywhere.herokuapp.com/https://swapi.co/api/people`)
       //   .then(response => {
       //     this.people = response.data.results;

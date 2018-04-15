@@ -1,46 +1,50 @@
 <template>
-  <div class="md-layout md-gutter md-alignment-top-center">
+  <div>
     <div v-if="loading" v-cloak class="loading">
       <Loader/>
     </div>
-    <div :id="`person-${person.id}`" v-else ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of fe">
-      <md-card>
-        <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
-        <md-card-media :style="getBackground(person.img)" ref="image">
-          <!-- <img :src="getPic(person.img)" alt="People"> -->
-        </md-card-media>
-        <md-card-header>
-          <div class="md-title">Quem sou eu?</div>
-          <div class="md-subhead">NomeDigitado: {{person.nameTyped}}</div>
-          <div class="md-subhead">Pontos: {{person.points}}</div>
-          <md-field>
-            <label>Escreva o nome aqui!</label>
-            <md-input v-model="person.nameTyped" ref="input"></md-input>
-          </md-field>
-        </md-card-header>
-        <md-card-expand>
-          <md-card-actions>
-            <md-button class="md-fab md-mini md-primary" ref="button_add" v-on:click="handleViewMore(key)">
-              <md-icon>add</md-icon>
-            </md-button>
-            <md-card-expand-trigger style="display:none;">
-              <md-button class="md-fab md-mini md-primary" ref="button_details">
+    <div v-else class="md-layout md-gutter md-alignment-top-center container-app">
+      <div style="width:100%;display:block;">
+        <md-button class="md-primary md-raised" v-on:click="handlePoints()">Testar</md-button>
+      </div>
+      <div :id="`person-${person.id}`" ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of fe">
+        <md-card>
+          <!-- <md-card-media :style="getBackground(getPic(person.img))"> -->
+          <md-card-media :style="getBackground(person.img)" ref="image">
+            <!-- <img :src="getPic(person.img)" alt="People"> -->
+          </md-card-media>
+          <md-card-header>
+            <div class="md-title">Quem sou eu?</div>
+            <div class="md-subhead">NomeDigitado: {{person.nameTyped}}</div>
+            <div class="md-subhead">Pontos: {{person.points}}</div>
+            <md-field>
+              <label>Escreva o nome aqui!</label>
+              <md-input v-model="person.nameTyped" ref="input"></md-input>
+            </md-field>
+          </md-card-header>
+          <md-card-expand>
+            <md-card-actions>
+              <md-button class="md-fab md-mini md-primary" ref="button_add" v-on:click="handleViewMore(key)">
                 <md-icon>add</md-icon>
               </md-button>
-            </md-card-expand-trigger>
-            <md-button class="md-icon-button md-raised md-accent" ref="button_ok" v-on:click="anwserName(key)">
-              <md-icon>thumb_up</md-icon>
-            </md-button>
-          </md-card-actions>
-          <md-card-expand-content>
-            <md-card-content>
-              O personagem possui altura de {{person.height}}, massa de {{person.mass}}, seu cabelo é {{person.hair_color}}, tem olhos {{person.eye_color}}. Nasceu em {{person.homeworld}} e tem a pele {{person.skin_color}}
-            </md-card-content>
-          </md-card-expand-content>
-        </md-card-expand>
-      </md-card>
+              <md-card-expand-trigger style="display:none;">
+                <md-button class="md-fab md-mini md-primary" ref="button_details">
+                  <md-icon>add</md-icon>
+                </md-button>
+              </md-card-expand-trigger>
+              <md-button class="md-icon-button md-raised md-accent" ref="button_ok" v-on:click="anwserName(key)">
+                <md-icon>thumb_up</md-icon>
+              </md-button>
+            </md-card-actions>
+            <md-card-expand-content>
+              <md-card-content>
+                O personagem possui altura de {{person.height}}, massa de {{person.mass}}, seu cabelo é {{person.hair_color}}, tem olhos {{person.eye_color}}. Nasceu em {{person.homeworld}} e tem a pele {{person.skin_color}}
+              </md-card-content>
+            </md-card-expand-content>
+          </md-card-expand>
+        </md-card>
+      </div>
     </div>
-    <md-button class="md-primary md-raised" v-on:click="handlePoints()">Testar</md-button>
     <md-dialog :md-active.sync="showDialog" v-model=pointsTotal>
       <md-dialog-title>Confira abaixo sua pontuação!</md-dialog-title>
       <md-tabs md-dynamic-height>
@@ -59,11 +63,10 @@
             <md-input v-model="newRanking.email"></md-input>
           </md-field>
           <md-button class="md-primary md-raised" @click="saveRanking()">Salvar</md-button>
-          <md-button class="md-primary md-raised" @click="getRanking()">Carregar</md-button>
         </md-tab>
         <md-tab md-label="Ranking">
           <md-list class="md-triple-line">
-            <md-list-item v-for="(rank, key) of ranking">
+            <md-list-item :key="index" v-for="(rank, index) of ranking">
               <md-avatar>
                 <h1>{{rank.points}}</h1>
               </md-avatar>
@@ -81,8 +84,7 @@
         </md-tab>
       </md-tabs>
       <md-dialog-actions>
-        <md-button class="md-primary md-raised" @click="showDialog = false">Close</md-button>
-        <md-button class="md-primary md-raised" @click="showDialog = false">Save</md-button>
+        <md-button class="md-primary md-raised" @click="showDialog = false">Fechar</md-button>
       </md-dialog-actions>
     </md-dialog>
   </div>
@@ -224,25 +226,27 @@
         //   return
         //   addr = 'https://cors-anywhere.herokuapp.com/';
         // }
+        this.loading = true;
         axios.get(addr)
           .then(response => {
             this.newPage = response.data.results;
             this.nextPage = response.data.next;
             this.previousPage = response.data.previous;
             this.people = this.people.concat(this.newPage);
+            this.loading = false;
             // if (this.bottomVisible()) {
             //   this.addPage();
             // }
           })
+          .catch(err => this.loading = false)
       },
       async peopleWithImage() {
         let next = this.nextPage;
         let people = this.people;
         let peopleFinal = [];
         let cachedPeopleWithImage = JSON.parse(sessionStorage.getItem("peopleWithImage"));
-
         async function newReq() {
-          // this.loading = true;
+          this.loading = true;
           for (let i = 0; i < people.length; i++) {
             let imgSelected = {};
             let index = people[i];
@@ -273,12 +277,12 @@
             peopleFinal.push(combined);
           }
           console.log('peopleFinal: ', peopleFinal);
-          // this.loading = false;
+          this.loading = false;
           sessionStorage.setItem("peopleWithImage", JSON.stringify(peopleFinal));
           return peopleFinal;
         }
         if (cachedPeopleWithImage != null && cachedPeopleWithImage != 'undefined' && cachedPeopleWithImage != '') {
-          // this.loading = true;
+          this.loading = true;
           console.log("EXISTE CACHE");
           let cachedNext = cachedPeopleWithImage[(cachedPeopleWithImage.length) - 1].nextPage;
           let cachedRegex = ((cachedNext).match(/\/([^\/]+)\/?$/)[0]).split('=')[1];
@@ -290,7 +294,7 @@
             newReq();
           } else {
             console.log("EXISTE CACHE >> E BATE COM CACHE" + cachedPeopleWithImage);
-            // this.loading = false;
+            this.loading = false;
             return cachedPeopleWithImage
           }
         } else {
@@ -320,13 +324,12 @@
       }
     },
     asyncComputed: {
-      async fe(){
+      async fe() {
         this.loading = true;
         let final = await this.peopleWithImage();
         this.loading = false;
         return final
       },
-
     },
     created() {
       // this.loading = true;
@@ -350,14 +353,14 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-  .md-dialog {
-    max-width: 768px;
-  }
-  .loading {
-    position: absolute;
-    top: 0px;
-    width: 100vw;
-  }
+.container-app{
+   position: relative;
+   z-index:300;
+    padding:0% 10%;
+    > .md-layout-item{
+      margin-bottom:20px;
+    }
+}
   .md-card {
     width: 320px;
     margin: 4px;
@@ -367,6 +370,15 @@
       height: 180px!important;
       overflow: hidden;
     }
+  }
+  .md-dialog {
+    max-width: 768px;
+  }
+  .loading {
+    position: absolute;
+    z-index:999;
+    top: 0px;
+    width: 100vw;
   }
   .answered {
     .md-field:after {

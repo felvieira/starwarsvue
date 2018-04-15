@@ -5,7 +5,9 @@
     </div>
     <div v-else class="md-layout md-gutter md-alignment-top-center container-app">
       <div style="width:100%;display:block;">
-        <md-button class="md-primary md-raised" v-on:click="handlePoints()">Testar</md-button>
+         <md-button class="md-primary md-fab md-plain md-fixed md-fab-bottom-right" v-on:click="handlePoints()">
+            <md-icon>done_all</md-icon>
+          </md-button>
       </div>
       <div :id="`person-${person.id}`" ref="card" class="md-layout-item" :key="person.id" v-for="(person, key) of fe">
         <md-card>
@@ -15,7 +17,7 @@
           </md-card-media>
           <md-card-header>
             <div class="md-title">Quem sou eu?</div>
-            <div class="md-subhead">NomeDigitado: {{person.nameTyped}}</div>
+            <div class="md-subhead">Nome: {{person.name}}</div>
             <div class="md-subhead">Pontos: {{person.points}}</div>
             <md-field>
               <label>Escreva o nome aqui!</label>
@@ -25,15 +27,15 @@
           <md-card-expand>
             <md-card-actions>
               <md-button class="md-fab md-mini md-primary" ref="button_add" v-on:click="handleViewMore(key)">
-                <md-icon>add</md-icon>
+                <md-icon>keyboard_arrow_down</md-icon>
               </md-button>
               <md-card-expand-trigger style="display:none;">
                 <md-button class="md-fab md-mini md-primary" ref="button_details">
-                  <md-icon>add</md-icon>
+                  <md-icon>done</md-icon>
                 </md-button>
               </md-card-expand-trigger>
-              <md-button class="md-icon-button md-raised md-accent" ref="button_ok" v-on:click="anwserName(key)">
-                <md-icon>thumb_up</md-icon>
+              <md-button class="md-fab md-mini md-accent" ref="button_ok" v-on:click="anwserName(key)">
+                <md-icon>done</md-icon>
               </md-button>
             </md-card-actions>
             <md-card-expand-content>
@@ -160,24 +162,34 @@
         console.log(this.ranking)
         // if (localStorage.getItem('ranking')) this.ranking = JSON.parse(localStorage.getItem('ranking'));
       },
-      handlePoints() {
-        let point = 0;
-        for (let i = 0; i < this.peopleWithImage.length; i++) {
-          let person = this.peopleWithImage[i];
-          this.pointsFinal(person);
-          point += person.points;
+      handlePoints(key) {
+        if(key >= 0){
+          console.log('key: ', key);
+            console.log('this.peopleWithImage[key]: ', this.fe[key]);
+          console.log('this.peopleWithImage: ', this.fe);
+          this.pointsFinal(this.fe[key])
+
+        }else{
+          let point = 0;
+          for (let i = 0; i < this.fe.length; i++) {
+            let person = this.fe[i];
+            this.pointsFinal(person);
+            point += person.points;
+          }
+          this.pointsTotal = point;
+          this.showDialog = true;
         }
-        this.pointsTotal = point;
-        this.showDialog = true;
+
       },
       handleViewMore(key) {
         this.$refs.button_details[key].$el.click();
-        this.peopleWithImage[key].viewMore = true;
+        this.fe[key].viewMore = true;
       },
       anwserName(key) {
         this.$refs.input[key].disabled = true;
         this.$refs.button_add[key].disabled = true;
         this.$refs.button_ok[key].disabled = true;
+        this.handlePoints(key);
         this.$refs.card[key].classList.add("answered");
       },
       pointsFinal(person) {
@@ -353,6 +365,12 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
+.md-overlay{
+  z-index:400;
+}
+.md-dialog{
+  z-index:500;
+}
 .container-app{
    position: relative;
    z-index:300;

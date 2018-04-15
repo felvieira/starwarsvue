@@ -44,8 +44,8 @@
   @import "~vue-material/dist/theme/engine"; // Import the theme engine
   @include md-register-theme("default", ( // primary: md-get-palette-color(yellow, A200), // The primary color of your application
   // accent: md-get-palette-color(red, A200), // The accent or secondary color
-  primary: #FCDF2B, // The primary color of your brand
-  accent: #1a11e8, // The secondary color of your brand
+  primary: #fcdf2b, // The primary color of your brand
+  accent: #0c0c0c, // The secondary color of your brand
   theme: dark // This can be dark or light
   ));
   @import "~vue-material/dist/theme/all"; // Apply the theme
@@ -131,6 +131,9 @@
     button {
       &.md-primary {
         background-color: #FCDF2B!important;
+      }
+      &.md-accent{
+        background-color: #0c0c0c!important;
       }
     }
   }

@@ -212,6 +212,7 @@
         return bottomOfPage || pageHeight < visible
       },
       async addPage() {
+        this.loading = true;
         console.log('Rodou AddPage');
         console.log('this.nextPage: ', this.nextPage);
         // alert("CHAMOU")
@@ -238,7 +239,7 @@
         //   return
         //   addr = 'https://cors-anywhere.herokuapp.com/';
         // }
-        this.loading = true;
+
         axios.get(addr)
           .then(response => {
             this.newPage = response.data.results;
@@ -258,7 +259,7 @@
         let peopleFinal = [];
         let cachedPeopleWithImage = JSON.parse(sessionStorage.getItem("peopleWithImage"));
         async function newReq() {
-          this.loading = true;
+          // this.loading = true;
           for (let i = 0; i < people.length; i++) {
             let imgSelected = {};
             let index = people[i];
@@ -289,12 +290,12 @@
             peopleFinal.push(combined);
           }
           console.log('peopleFinal: ', peopleFinal);
-          this.loading = false;
+          // this.loading = false;
           sessionStorage.setItem("peopleWithImage", JSON.stringify(peopleFinal));
           return peopleFinal;
         }
         if (cachedPeopleWithImage != null && cachedPeopleWithImage != 'undefined' && cachedPeopleWithImage != '') {
-          this.loading = true;
+          // this.loading = true;
           console.log("EXISTE CACHE");
           let cachedNext = cachedPeopleWithImage[(cachedPeopleWithImage.length) - 1].nextPage;
           let cachedRegex = ((cachedNext).match(/\/([^\/]+)\/?$/)[0]).split('=')[1];
@@ -306,7 +307,7 @@
             newReq();
           } else {
             console.log("EXISTE CACHE >> E BATE COM CACHE" + cachedPeopleWithImage);
-            this.loading = false;
+            // this.loading = false;
             return cachedPeopleWithImage
           }
         } else {

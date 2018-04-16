@@ -314,9 +314,9 @@
           newReq();
         }
       },
-      getPic(person) {
-        return require('@/assets/img/people/' + person)
-      },
+      // getPic(person) {
+      //   return require('@/assets/img/people/' + person)
+      // },
       getBackground: function(getPicPerson) {
         let addrs = getPicPerson;
         return [{
